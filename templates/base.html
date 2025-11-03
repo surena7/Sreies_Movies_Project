@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="{% static "web/css/style.css" %}"> 
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url "web:home" %}" class="logo">
+                    <i class="fas fa-play-circle"></i>
+                    سریال<span>یت</span>
+                </a>
+                
+                <nav class="d-none d-lg-flex">
+                    <a href="{% url "web:home" %}" class="nav-link active">خانه</a>
+                    <a href="{% url "web:all" %}" class="nav-link">فیلم‌ها</a>
+                {% if user.is_authenticated %}
+                <form method="POST" action="{% url "logout" %}">
+                    {% csrf_token %}
+                    <button class="nav-link" type="submit">خروج از حساب</button>
+                </form>
+                {% else %}
+                    <a href="{% url "accounts:signup" %}" class="nav-link">ورود | ثبت نام</a>
+                {% endif %}
+                    <a href="{% url "web:post_blog" %}" class="nav-link">مقالات</a>
+                </nav>
+                
+                <div class="d-flex align-items-center">
+                    <div class="search-box me-3 d-none d-md-block">
+                        <input type="text" placeholder="جستجوی فیلم، سریال، بازیگر...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <a href="#" class="position-relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </a>
+                        <a href="#"><i class="fas fa-heart"></i></a>
+                        <div class="dropdown d-inline-block">
+                            <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#">پروفایل من</a></li>
+                                <li><a class="dropdown-item" href="#">لیست من</a></li>
+                                <li><a class="dropdown-item" href="#">تاریخچه تماشا</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">خروج</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button class="navbar-toggler d-lg-none ms-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}
+    
+
+    {% endblock content %}
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <a href="#" class="footer-logo">سریالیت</a>
+                    <p class="footer-desc">سریالیت بزرگترین پلتفرم تماشای آنلاین فیلم و سریال در ایران است که با کیفیت بالا و محتوای متنوع در خدمت کاربران خود می‌باشد. ما با گردآوری بهترین و جدیدترین فیلم‌ها و سریال‌های ایرانی و خارجی، تجربه‌ای بی‌نظیر از تماشای آنلاین را برای شما فراهم کرده‌ایم.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h4 class="footer-title">لینک‌های سریع</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> خانه</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> فیلم‌ها</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> سریال‌ها</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> دسته‌بندی‌ها</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> تماشاخانه</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> مقالات</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="footer-title">دسته‌بندی‌ها</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> درام</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> اکشن</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> کمدی</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> علمی-تخیلی</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> ترسناک</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> عاشقانه</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="footer-title">تماس با ما</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> تهران، خیابان ولیعصر، پلاک ۱۲۳۴</a></li>
+                        <li><a href="tel:+982112345678"><i class="fas fa-phone"></i> ۰۲۱-۱۲۳۴۵۶۷۸</a></li>
+                        <li><a href="tel:+989123456789"><i class="fas fa-mobile-alt"></i> ۰۹۱۲-۳۴۵-۶۷۸۹</a></li>
+                        <li><a href="mailto:info@serialit.com"><i class="fas fa-envelope"></i> info@serialit.com</a></li>
+                        <li><a href="#"><i class="fas fa-clock"></i> پشتیبانی ۲۴ ساعته</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>کلیه حقوق این وبسایت متعلق به سریالیت می‌باشد. © ۱۴۰۲</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script src="{% static "web/js/script.js" %}"></script>
+</body>
+</html>

@@ -1,0 +1,755 @@
+{% extends "base.html" %}
+
+{% block title %}تمامی مقالات و اخبار سریالیت{% endblock title %}
+
+{% block content %}
+
+<div class="all-posts-page">
+    <!-- Header Section -->
+    <section class="page-header-section py-5" style="background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="page-icon mb-3">
+                        <i class="fas fa-newspaper fa-3x"></i>
+                    </div>
+                    <h1 class="page-title display-4 fw-bold mb-3">مقالات و اخبار</h1>
+                    <p class="page-subtitle lead">آخرین مطالب و تحلیل‌های سینمایی و سریالی</p>
+                    
+                    <!-- Stats -->
+                    <div class="stats-row mt-4">
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <span class="stat-number">{{ post.count }}</span>
+                                <span class="stat-label">مقاله منتشر شده</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ post|length }}</span>
+                                <span class="stat-label">مقاله در این صفحه</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section py-4 bg-dark">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">همه مقالات</button>
+                        <button class="filter-btn" data-filter="popular">پربازدیدترین</button>
+                        <button class="filter-btn" data-filter="recent">جدیدترین</button>
+                        <button class="filter-btn" data-filter="featured">مقالات ویژه</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="جستجو در مقالات..." id="searchInput">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Posts Grid Section -->
+    <section class="posts-grid-section py-5">
+        <div class="container">
+            <div class="row g-4" id="postsGrid">
+                {% for p in post %}
+                <div class="col-xl-4 col-lg-6 post-item" 
+                     data-views="{{ p.views }}"
+                     data-date="{{ p.created|date:'Y-m-d' }}"
+                     data-title="{{ p.title }}"
+                     data-author="{{ p.author.username }}">
+                    <div class="post-card">
+                        <div class="post-image-container">
+                            <img src="{{ p.image.url }}" alt="{{ p.title }}" class="post-image">
+                            
+                            <!-- Post Badges -->
+                            <div class="post-badges">
+                                {% if p.views > 1000 %}
+                                <span class="badge popular-badge">پربازدید</span>
+                                {% endif %}
+                                <span class="badge date-badge">{{ p.created|date:"Y/m/d" }}</span>
+                            </div>
+
+                            <!-- Post Overlay -->
+                            <div class="post-overlay">
+                                <button class="post-read-btn" onclick="location.href='{% url 'web:post_detail' p.id %}'">
+                                    <i class="fas fa-book-open me-2"></i>
+                                    مطالعه مقاله
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="post-content">
+                            <h3 class="post-title">{{ p.title }}</h3>
+                            
+                            <div class="post-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>{{ p.author.get_full_name|default:p.author.username }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span>{{ p.views }} بازدید</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ p.created|timesince }} قبل</span>
+                                </div>
+                            </div>
+
+                            <p class="post-excerpt">{{ p.text|truncatewords:30 }}</p>
+
+                            <div class="post-footer">
+                                <div class="post-tags">
+                                    <span class="tag">مقاله</span>
+                                    <span class="tag">سینما</span>
+                                </div>
+                                <a href="{% url 'web:post_detail' p.id %}" class="read-more-link">
+                                    ادامه مطلب
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="empty-state text-center py-5">
+                        <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">مقاله‌ای یافت نشد</h4>
+                        <p class="text-muted">در حال حاضر هیچ مقاله‌ای منتشر نشده است.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Load More Button -->
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary btn-load-more" id="loadMore">
+                        <i class="fas fa-plus me-2"></i>
+                        بارگذاری مقالات بیشتر
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* All Posts Page */
+    .all-posts-page {
+        background: var(--primary-color);
+        min-height: 100vh;
+    }
+
+    /* Page Header */
+    .page-header-section {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        color: white;
+    }
+
+    .page-title {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+    }
+
+    .page-icon {
+        color: var(--highlight-color);
+    }
+
+    .stats-container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--highlight-color);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    /* Filters Section */
+    .filters-section {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+        padding: 8px 20px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: var(--highlight-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .search-box .input-group {
+        border-radius: 25px;
+        overflow: hidden;
+    }
+
+    .search-box .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+        border-left: none;
+    }
+
+    .search-box .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--highlight-color);
+        box-shadow: none;
+        color: var(--text-color);
+    }
+
+    .search-box .btn {
+        background: var(--highlight-color);
+        border: 1px solid var(--highlight-color);
+        border-radius: 0 25px 25px 0;
+    }
+
+    /* Post Card */
+    .post-item {
+        display: flex;
+    }
+
+    .post-card {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+    }
+
+    .post-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .post-image-container {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.1);
+    }
+
+    .post-badges {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 2;
+    }
+
+    .badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .popular-badge {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        color: white;
+    }
+
+    .date-badge {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .post-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .post-card:hover .post-overlay {
+        opacity: 1;
+    }
+
+    .post-read-btn {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .post-read-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(233, 69, 96, 0.5);
+    }
+
+    .post-content {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .post-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        line-height: 1.4;
+        height: 3.2em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        flex-shrink: 0;
+    }
+
+    .post-meta {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .meta-item i {
+        color: var(--highlight-color);
+        font-size: 0.7rem;
+    }
+
+    .post-excerpt {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        flex-grow: 1;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        min-height: 4.2em;
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: auto;
+        flex-shrink: 0;
+        gap: 10px;
+    }
+
+    .post-tags {
+        display: flex;
+        gap: 8px;
+    }
+
+    .tag {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--highlight-color);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .read-more-link {
+        color: var(--highlight-color);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .read-more-link:hover {
+        color: var(--text-color);
+        transform: translateX(-5px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        padding: 60px 20px;
+    }
+
+    /* Load More Button */
+    .btn-load-more {
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 600;
+        border: 2px solid var(--highlight-color);
+        color: var(--highlight-color);
+        transition: all 0.3s ease;
+    }
+
+    .btn-load-more:hover {
+        background: var(--highlight-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Grid Layout Fix */
+    .row.g-4 {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .row.g-4 > [class*='col-'] {
+        display: flex;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.5rem;
+        }
+
+        .stats-container {
+            gap: 20px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .filter-buttons {
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            text-align: center;
+        }
+
+        .post-footer {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .read-more-link {
+            text-align: center;
+        }
+
+        .post-image-container {
+            height: 220px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .post-image-container {
+            height: 200px;
+        }
+
+        .post-content {
+            padding: 20px;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+        }
+
+        .post-meta {
+            gap: 10px;
+        }
+
+        .meta-item {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Ensure equal height for all cards in the same row */
+    @media (min-width: 768px) {
+        .row.g-4 {
+            align-items: stretch;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const postItems = document.querySelectorAll('.post-item');
+        const searchInput = document.getElementById('searchInput');
+        const loadMoreBtn = document.getElementById('loadMore');
+
+        // Filter posts
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                filterPosts(filter);
+            });
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterPostsBySearch(searchTerm);
+        });
+
+        // Load more functionality
+        let visibleItems = 9;
+        loadMoreBtn.addEventListener('click', function() {
+            const allItems = document.querySelectorAll('.post-item');
+            const nextItems = Array.from(allItems).slice(visibleItems, visibleItems + 6);
+            
+            nextItems.forEach(item => {
+                item.style.display = 'flex';
+            });
+            
+            visibleItems += 6;
+            
+            // Hide load more button if all items are visible
+            if (visibleItems >= allItems.length) {
+                loadMoreBtn.style.display = 'none';
+            }
+        });
+
+        // Initialize - show first 9 items
+        function initializeItems() {
+            const allItems = document.querySelectorAll('.post-item');
+            allItems.forEach((item, index) => {
+                if (index < 9) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (allItems.length <= 9) {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // Filter posts function
+        function filterPosts(filter) {
+            postItems.forEach(item => {
+                const views = parseInt(item.getAttribute('data-views'));
+                const date = item.getAttribute('data-date');
+                
+                let showItem = false;
+                
+                switch(filter) {
+                    case 'all':
+                        showItem = true;
+                        break;
+                    case 'popular':
+                        showItem = views > 500;
+                        break;
+                    case 'recent':
+                        // Show posts from last 30 days
+                        const postDate = new Date(date);
+                        const thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                        showItem = postDate > thirtyDaysAgo;
+                        break;
+                    case 'featured':
+                        showItem = views > 1000;
+                        break;
+                }
+                
+                if (showItem) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Reset load more
+            visibleItems = 9;
+            loadMoreBtn.style.display = 'block';
+        }
+
+        // Filter posts by search
+        function filterPostsBySearch(searchTerm) {
+            postItems.forEach(item => {
+                const title = item.getAttribute('data-title').toLowerCase();
+                const author = item.getAttribute('data-author').toLowerCase();
+                
+                if (title.includes(searchTerm) || author.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize page
+        initializeItems();
+        
+        // Add loading animation
+        const postCards = document.querySelectorAll('.post-card');
+        postCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('fade-in-up');
+        });
+
+        // Equalize card heights in each row
+        function equalizeCardHeights() {
+            const rows = [];
+            let currentRow = [];
+            let currentTop = null;
+
+            postItems.forEach(item => {
+                if (item.style.display !== 'none') {
+                    const rect = item.getBoundingClientRect();
+                    
+                    if (currentTop === null) {
+                        currentTop = rect.top;
+                    }
+                    
+                    if (Math.abs(rect.top - currentTop) < 10) {
+                        currentRow.push(item);
+                    } else {
+                        if (currentRow.length > 0) {
+                            rows.push(currentRow);
+                        }
+                        currentRow = [item];
+                        currentTop = rect.top;
+                    }
+                }
+            });
+            
+            if (currentRow.length > 0) {
+                rows.push(currentRow);
+            }
+            
+            rows.forEach(row => {
+                let maxHeight = 0;
+                
+                // Find max height in row
+                row.forEach(item => {
+                    const card = item.querySelector('.post-card');
+                    card.style.height = 'auto';
+                    const height = card.offsetHeight;
+                    if (height > maxHeight) {
+                        maxHeight = height;
+                    }
+                });
+                
+                // Set all cards in row to max height
+                row.forEach(item => {
+                    const card = item.querySelector('.post-card');
+                    card.style.height = maxHeight + 'px';
+                });
+            });
+        }
+
+        // Run equalization after page load and on resize
+        window.addEventListener('load', equalizeCardHeights);
+        window.addEventListener('resize', equalizeCardHeights);
+        setTimeout(equalizeCardHeights, 100);
+    });
+
+    // CSS Animation
+    const style = document.createElement('style');
+    style.textContent = `
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+{% endblock content %}

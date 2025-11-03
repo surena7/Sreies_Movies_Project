@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}ورود به سریالیت{% endblock title %}
+
+{% block content %}
+
+<div class="auth-page">
+    <!-- Header Section -->
+    <section class="page-header-section py-5" style="background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="auth-icon mb-3">
+                        <i class="fas fa-sign-in-alt fa-3x"></i>
+                    </div>
+                    <h1 class="page-title display-4 fw-bold mb-3">ورود به سریالیت</h1>
+                    <p class="page-subtitle lead">به حساب کاربری خود وارد شوید</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Form Section -->
+    <section class="auth-form-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-6">
+                    <div class="auth-card">
+                        <div class="auth-card-header">
+                            <h3 class="auth-title">فرم ورود</h3>
+                            <p class="auth-subtitle">اطلاعات حساب خود را وارد کنید</p>
+                        </div>
+
+                        <div class="auth-card-body">
+                            {% if form.errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                نام کاربری یا رمز عبور اشتباه است
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endif %}
+
+                            <form method="post" class="auth-form">
+                                {% csrf_token %}
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-user me-2"></i>
+                                        نام کاربری
+                                    </label>
+                                    {{ form.username }}
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="form-label">
+                                        <i class="fas fa-lock me-2"></i>
+                                        رمز عبور
+                                    </label>
+                                    {{ form.password }}
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                                        <label class="form-check-label" for="remember">
+                                            مرا به خاطر بسپار
+                                        </label>
+                                    </div>
+                                    <a href="#" class="auth-link">فراموشی رمز عبور؟</a>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100 auth-submit-btn">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    ورود به حساب
+                                </button>
+                            </form>
+
+                            <div class="auth-footer text-center mt-4">
+                                <p class="mb-0">حساب کاربری ندارید؟
+                                    <a href="{% url 'accounts:signup' %}" class="auth-link">ثبت نام کنید</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Use the same styles as signup page */
+    .auth-page {
+        min-height: 100vh;
+        background: var(--primary-color);
+    }
+
+    .page-header-section {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        color: white;
+    }
+
+    .page-title {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+    }
+
+    .auth-icon {
+        color: var(--highlight-color);
+    }
+
+    .auth-card {
+        background: var(--secondary-color);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+    }
+
+    .auth-card-header {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        padding: 30px;
+        text-align: center;
+        color: white;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+    }
+
+    .auth-card-body {
+        padding: 40px;
+    }
+
+    .auth-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        color: var(--text-color);
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .auth-form .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+        border-radius: 12px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .auth-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--highlight-color);
+        box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
+        color: var(--text-color);
+    }
+
+    .form-check-input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--highlight-color);
+        border-color: var(--highlight-color);
+    }
+
+    .form-check-label {
+        color: var(--text-color);
+    }
+
+    .auth-submit-btn {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .auth-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+    }
+
+    .auth-footer {
+        color: var(--text-secondary);
+    }
+
+    .auth-link {
+        color: var(--highlight-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 12px;
+        border: none;
+        background: rgba(220, 53, 69, 0.1);
+        color: #f8d7da;
+    }
+
+    @media (max-width: 768px) {
+        .auth-card-body {
+            padding: 30px 25px;
+        }
+        
+        .auth-card-header {
+            padding: 25px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add styling to form fields
+        const formFields = document.querySelectorAll('.auth-form input');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+
+{% endblock content %}

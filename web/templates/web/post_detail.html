@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock title %}
+
+{% block content %}
+
+<div class="post-detail-page">
+    <!-- Post Header Section -->
+    <section class="post-header-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'web:home' %}" class="breadcrumb-link">خانه</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'web:post_blog' %}" class="breadcrumb-link">بلاگ</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ post.title|truncatewords:5 }}</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Post Title -->
+                    <h1 class="post-title display-4 fw-bold mb-4">{{ post.title }}</h1>
+
+                    <!-- Post Meta -->
+                    <div class="post-meta mb-4">
+                        <div class="meta-items">
+                            <div class="meta-item">
+                                <i class="fas fa-user me-2"></i> 
+                                <span>نویسنده: {{ post.author.get_full_name|default:post.author.username }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar me-2"></i> 
+                                <span>{{ post.created|date:"Y/m/d" }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-eye me-2"></i> 
+                                <span>{{ post.views }} بازدید</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="post-featured-image mb-5">
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="featured-img img-fluid rounded-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Post Content Section -->
+    <section class="post-content-section py-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="post-content">
+                        <div class="content-text">
+                            {{ post.text|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Post Actions Section -->
+    <section class="post-actions-section py-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <button class="btn btn-outline-primary me-3 like-btn">
+                                <i class="far fa-heart me-2"></i>
+                                پسندیدم
+                            </button>
+                            <button class="btn btn-outline-secondary me-3 share-btn">
+                                <i class="fas fa-share-alt me-2"></i>
+                                اشتراک‌گذاری
+                            </button>
+                            <button class="btn btn-outline-info comment-btn">
+                                <i class="far fa-comment me-2"></i>
+                                نظرات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Author Info Section -->
+    <section class="author-section py-5 bg-dark">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="author-card">
+                        <div class="author-header">
+                            <h3 class="author-title">درباره نویسنده</h3>
+                        </div>
+                        <div class="author-content">
+                            <div class="author-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="author-info">
+                                <h4 class="author-name">{{ post.author.get_full_name|default:post.author.username }}</h4>
+                                <p class="author-bio">نویسنده و منتقد فیلم و سریال در سریالیت</p>
+                                <div class="author-stats">
+                                    <span class="stat-item">{{ post.author.post_set.count }} مقاله</span>
+                                    <span class="stat-divider">•</span>
+                                    <span class="stat-item">عضویت از {{ post.author.date_joined|date:"Y/m/d" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Posts Section -->
+    <section class="related-posts-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="section-title mb-4">مقالات مرتبط</h2>
+                </div>
+            </div>
+            <div class="row g-4">
+                {% for related_post in post.author.post_set.all|slice:":3" %}
+                    {% if related_post.id != post.id %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="related-post-card">
+                            <div class="related-post-image">
+                                <img src="{{ related_post.image.url }}" alt="{{ related_post.title }}" class="img-fluid">
+                            </div>
+                            <div class="related-post-content">
+                                <h5 class="related-post-title">{{ related_post.title }}</h5>
+                                <div class="related-post-meta">
+                                    <span class="meta-date">{{ related_post.created|date:"Y/m/d" }}</span>
+                                    <span class="meta-views">{{ related_post.views }} بازدید</span>
+                                </div>
+                                <a href="{% url 'web:post_detail' related_post.id %}" class="read-more-btn">
+                                    مطالعه مقاله
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12">
+                        <div class="empty-related text-center py-4">
+                            <i class="fas fa-newspaper fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">مقاله مرتبط دیگری یافت نشد</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Post Detail Page */
+    .post-detail-page {
+        background: var(--primary-color);
+        min-height: 100vh;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb-item {
+        color: var(--text-secondary);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--highlight-color);
+    }
+
+    .breadcrumb-link {
+        color: var(--text-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        margin: 3px;
+
+    }
+
+    .breadcrumb-link:hover {
+        color: var(--highlight-color);
+    }
+
+    /* Post Header */
+    .post-title {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.3;
+    }
+
+    .post-meta {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .meta-items {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .meta-item i {
+        color: var(--highlight-color);
+    }
+
+    /* Featured Image */
+    .post-featured-image {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .featured-img {
+        width: 100%;
+        height: auto;
+        transition: transform 0.5s ease;
+    }
+
+    .post-featured-image:hover .featured-img {
+        transform: scale(1.02);
+    }
+
+    /* Post Content */
+    .post-content {
+        background: var(--secondary-color);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .content-text {
+        color: var(--text-color);
+        line-height: 2;
+        font-size: 1.1rem;
+        text-align: justify;
+    }
+
+    .content-text p {
+        margin-bottom: 1.5rem;
+    }
+
+    .content-text h2, .content-text h3, .content-text h4 {
+        color: var(--highlight-color);
+        margin: 2rem 0 1rem 0;
+    }
+
+    .content-text blockquote {
+        border-right: 4px solid var(--highlight-color);
+        padding-right: 20px;
+        margin: 2rem 0;
+        font-style: italic;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    /* Post Actions */
+    .post-actions {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .action-buttons .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Author Section */
+    .author-card {
+        background: var(--secondary-color);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .author-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .author-title {
+        color: var(--highlight-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .author-content {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .author-avatar {
+        flex-shrink: 0;
+    }
+
+    .author-avatar i {
+        font-size: 4rem;
+        color: var(--highlight-color);
+    }
+
+    .author-info {
+        flex-grow: 1;
+    }
+
+    .author-name {
+        color: var(--text-color);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .author-bio {
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+    }
+
+    .author-stats {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .stat-divider {
+        color: var(--highlight-color);
+    }
+
+    /* Related Posts */
+    .section-title {
+        color: var(--text-color);
+        font-size: 1.5rem;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(to left, var(--highlight-color), transparent);
+        border-radius: 2px;
+    }
+
+    .related-post-card {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        height: 100%;
+    }
+
+    .related-post-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .related-post-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .related-post-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .related-post-card:hover .related-post-image img {
+        transform: scale(1.1);
+    }
+
+    .related-post-content {
+        padding: 20px;
+    }
+
+    .related-post-title {
+        color: var(--text-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        height: 3.2em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .related-post-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .read-more-btn {
+        color: var(--highlight-color);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .read-more-btn:hover {
+        color: var(--text-color);
+        transform: translateX(-5px);
+    }
+
+    .empty-related {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        padding: 40px 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .post-title {
+            font-size: 2.5rem;
+        }
+
+        .meta-items {
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .post-content {
+            padding: 25px;
+        }
+
+        .content-text {
+            font-size: 1rem;
+        }
+
+        .author-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .author-stats {
+            justify-content: center;
+        }
+
+        .action-buttons {
+            justify-content: center;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .post-title {
+            font-size: 2rem;
+        }
+
+        .post-content {
+            padding: 20px;
+        }
+
+        .author-card {
+            padding: 20px;
+        }
+
+        .related-post-content {
+            padding: 15px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Like button functionality
+        const likeBtn = document.querySelector('.like-btn');
+        likeBtn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.toggle('far');
+            icon.classList.toggle('fas');
+            icon.classList.toggle('text-danger');
+            
+            if (icon.classList.contains('fas')) {
+                showNotification('مقاله به علاقه‌مندی‌ها اضافه شد');
+            } else {
+                showNotification('مقاله از علاقه‌مندی‌ها حذف شد');
+            }
+        });
+
+        // Share button functionality
+        const shareBtn = document.querySelector('.share-btn');
+        shareBtn.addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ post.title }}',
+                    text: '{{ post.title }}',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showNotification('لینک مقاله کپی شد');
+                });
+            }
+        });
+
+        // Comment button functionality
+        const commentBtn = document.querySelector('.comment-btn');
+        commentBtn.addEventListener('click', function() {
+            // Scroll to comments section (if exists) or show comment modal
+            showNotification('سیستم نظرات به زودی فعال خواهد شد');
+        });
+
+        // Add fade-in animation to elements
+        const animatedElements = document.querySelectorAll('.post-content, .author-card, .related-post-card');
+        animatedElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.2}s`;
+            element.classList.add('fade-in-up');
+        });
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success position-fixed';
+            notification.style.cssText = 'top: 20px; left: 20px; z-index: 9999; min-width: 300px;';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    });
+
+    // CSS Animation
+    const style = document.createElement('style');
+    style.textContent = `
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+{% endblock content %}

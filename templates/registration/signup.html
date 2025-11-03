@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}ثبت نام در سریالیت{% endblock title %}
+
+{% block content %}
+
+<div class="auth-page">
+    <!-- Header Section -->
+    <section class="page-header-section py-5" style="background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="auth-icon mb-3">
+                        <i class="fas fa-user-plus fa-3x"></i>
+                    </div>
+                    <h1 class="page-title display-4 fw-bold mb-3">ثبت نام در سریالیت</h1>
+                    <p class="page-subtitle lead">به خانواده بزرگ سریالیت بپیوندید</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signup Form Section -->
+    <section class="auth-form-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="auth-card">
+                        <div class="auth-card-header">
+                            <h3 class="auth-title">فرم ثبت نام</h3>
+                            <p class="auth-subtitle">اطلاعات خود را وارد کنید</p>
+                        </div>
+
+                        <div class="auth-card-body">
+                            {% if error_message %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ error_message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endif %}
+
+                            <form method="post" class="auth-form">
+                                {% csrf_token %}
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-user me-2"></i>
+                                        نام کاربری
+                                    </label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        آدرس ایمیل
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-lock me-2"></i>
+                                        رمز عبور
+                                    </label>
+                                    {{ form.password1 }}
+                                    {% if form.password1.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.password1.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">رمز عبور باید حداقل 8 کاراکتر باشد</div>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="form-label">
+                                        <i class="fas fa-lock me-2"></i>
+                                        تکرار رمز عبور
+                                    </label>
+                                    {{ form.password2 }}
+                                    {% if form.password2.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.password2.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        با <a href="#" class="text-primary">قوانین و مقررات</a> سریالیت موافقم
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100 auth-submit-btn">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    ثبت نام
+                                </button>
+                            </form>
+
+                            <div class="auth-footer text-center mt-4">
+                                <p class="mb-0">قبلاً حساب کاربری دارید؟
+                                    <a href="{% url 'login' %}" class="auth-link">وارد شوید</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Auth Page Styles */
+    .auth-page {
+        min-height: 100vh;
+        background: var(--primary-color);
+    }
+
+    .page-header-section {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        color: white;
+    }
+
+    .page-title {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+    }
+
+    .auth-icon {
+        color: var(--highlight-color);
+    }
+
+    /* Auth Card */
+    .auth-card {
+        background: var(--secondary-color);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+    }
+
+    .auth-card-header {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        padding: 30px;
+        text-align: center;
+        color: white;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+    }
+
+    .auth-card-body {
+        padding: 40px;
+    }
+
+    /* Form Styles */
+    .auth-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        color: var(--text-color);
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .auth-form .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+        border-radius: 12px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .auth-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--highlight-color);
+        box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
+        color: var(--text-color);
+    }
+
+    .auth-form .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .form-text {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    /* Checkbox */
+    .form-check-input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--highlight-color);
+        border-color: var(--highlight-color);
+    }
+
+    .form-check-label {
+        color: var(--text-color);
+    }
+
+    .form-check-label a {
+        color: var(--highlight-color);
+        text-decoration: none;
+    }
+
+    .form-check-label a:hover {
+        text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .auth-submit-btn {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .auth-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+    }
+
+    /* Auth Footer */
+    .auth-footer {
+        color: var(--text-secondary);
+    }
+
+    .auth-link {
+        color: var(--highlight-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Alert */
+    .alert {
+        border-radius: 12px;
+        border: none;
+        background: rgba(220, 53, 69, 0.1);
+        color: #f8d7da;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .auth-card-body {
+            padding: 30px 25px;
+        }
+        
+        .auth-card-header {
+            padding: 25px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-card-body {
+            padding: 25px 20px;
+        }
+        
+        .auth-card-header {
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add styling to form fields
+        const formFields = document.querySelectorAll('.auth-form input');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+
+        // Password strength indicator
+        const password1 = document.querySelector('#id_password1');
+        if (password1) {
+            password1.addEventListener('input', function() {
+                const strengthIndicator = document.createElement('div');
+                strengthIndicator.className = 'password-strength mt-2';
+                
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+                if (password.match(/\d/)) strength++;
+                if (password.match(/[^a-zA-Z\d]/)) strength++;
+                
+                const strengthText = ['خیلی ضعیف', 'ضعیف', 'متوسط', 'قوی', 'خیلی قوی'];
+                const strengthColors = ['#dc3545', '#ffc107', '#fd7e14', '#20c997', '#198754'];
+                
+                strengthIndicator.innerHTML = `
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar" style="width: ${strength * 25}%; background-color: ${strengthColors[strength]};"></div>
+                    </div>
+                    <small class="text-muted">قدرت رمز: ${strengthText[strength]}</small>
+                `;
+                
+                const existingIndicator = this.parentNode.querySelector('.password-strength');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                this.parentNode.appendChild(strengthIndicator);
+            });
+        }
+    });
+</script>
+
+{% endblock content %}

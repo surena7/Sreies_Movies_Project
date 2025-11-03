@@ -1,0 +1,1332 @@
+{% extends "base.html" %}
+
+{% block title %}{{m.name}}{% endblock title %}
+
+{% block content %}
+
+<div class="movie-detail-page">
+    <!-- Movie Header Section -->
+    <section class="movie-header-section" style="background: linear-gradient(rgba(22, 33, 62, 0.85), rgba(26, 26, 46, 0.9)), url('{{m.pictrue.url}}'); background-size: cover; background-position: center;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-4 col-md-5 mb-4 mb-md-0">
+                    <div class="movie-poster-container">
+                        <img src="{{m.pictrue.url}}" alt="{{m.name}}" class="movie-poster img-fluid rounded-3 shadow-lg">
+                        <div class="movie-badge">{{m.movie_or_not}}</div>
+                        
+                        <!-- Play Button Overlay -->
+                        <div class="play-button-overlay">
+                            <button class="play-btn-main" data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-md-7">
+                    <div class="movie-header-content">
+                        <div class="movie-badges mb-3">
+                            <span class="badge status-badge">{{m.get_status_display}}</span>
+                            <span class="badge category-badge">{{m.category.name}}</span>
+                        </div>
+                        
+                        <h1 class="movie-title display-4 fw-bold mb-3">{{m.name}}</h1>
+                        
+                        <div class="movie-meta mb-4">
+                            <div class="meta-item">
+                                <i class="fas fa-star text-warning me-2"></i>
+                                <span class="imdb-rating">{{m.imdb_rate}}/10</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-globe me-2"></i>
+                                <span>{{m.country}}</span>
+                            </div>
+                            {% if m.movie_or_not == "Se" %}
+                            <div class="meta-item">
+                                <i class="fas fa-list-ol me-2"></i>
+                                <span>{{m.season_number}} فصل</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-play-circle me-2"></i>
+                                <span>{{m.ep_number}} قسمت</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="movie-crew mb-4">
+                            <div class="crew-item">
+                                <strong>کارگردان:</strong>
+                                <span>{{m.director}}</span>
+                            </div>
+                            <div class="crew-item">
+                                <strong>نویسنده:</strong>
+                                <span>{{m.autor}}</span>
+                            </div>
+                        </div>
+
+                        <div class="movie-actions">
+                            <button class="btn btn-primary btn-lg me-3 play-action-btn" data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <i class="fas fa-play me-2"></i>
+                                {% if m.movie_or_not == "سریال" %}پخش سریال{% else %}پخش فیلم{% endif %}
+                            </button>
+                            <button class="btn btn-outline-light btn-lg me-2 favorite-btn">
+                                <i class="far fa-heart me-2"></i>
+                                افزودن به علاقه‌مندی‌ها
+                            </button>
+                            <button class="btn btn-outline-light btn-lg add-to-list-btn">
+                                <i class="fas fa-plus me-2"></i>
+                                افزودن به لیست
+                            </button>
+                        </div>
+
+                        <!-- Quick Play Section -->
+                        <div class="quick-play-section mt-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5 class="quick-play-title mb-0">پخش سریع:</h5>
+                                <div class="quick-play-buttons">
+                                    {% if m.movie_or_not == "Se" %}
+                                        <!-- Season and Episode Selector -->
+                                        <div class="season-episode-selector">
+                                            <select class="form-select form-select-sm me-2 season-selector" style="width: auto; display: inline-block;">
+                                                {% for i in ""|ljust:m.season_number %}
+                                                    <option value="{{ forloop.counter }}">فصل {{ forloop.counter }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select class="form-select form-select-sm me-2 episode-selector" style="width: auto; display: inline-block;">
+                                                {% for i in ""|ljust:m.ep_number %}
+                                                    <option value="{{ forloop.counter }}">قسمت {{ forloop.counter }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button class="btn btn-sm btn-outline-light play-selected-btn">
+                                                پخش
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-light me-2 play-action-btn" data-bs-toggle="modal" data-bs-target="#videoModal">
+                                            پخش کامل
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-light trailer-btn" data-bs-toggle="modal" data-bs-target="#trailerModal">
+                                            تریلر
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Player Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoModalLabel">
+                        در حال پخش: {{m.name}}
+                        {% if m.movie_or_not == "سریال" %}
+                            - <span id="currentSeasonEpisode">فصل 1 قسمت 1</span>
+                        {% endif %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="video-player-container">
+                        <div class="video-placeholder">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <p>در حال بارگذاری ویدیو...</p>
+                            </div>
+                        </div>
+                        <div class="video-controls">
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill"></div>
+                                </div>
+                            </div>
+                            <div class="control-buttons">
+                                <button class="control-btn play-pause-btn">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="control-btn volume-btn">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <div class="time-display">
+                                    <span class="current-time">00:00</span> / 
+                                    <span class="duration">00:00</span>
+                                </div>
+                                {% if m.movie_or_not == "سریال" %}
+                                <div class="episode-navigation">
+                                    <button class="control-btn prev-episode-btn" title="قسمت قبلی">
+                                        <i class="fas fa-step-backward"></i>
+                                    </button>
+                                    <button class="control-btn next-episode-btn" title="قسمت بعدی">
+                                        <i class="fas fa-step-forward"></i>
+                                    </button>
+                                </div>
+                                {% endif %}
+                                <button class="control-btn fullscreen-btn">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {% if m.movie_or_not == "سریال" %}
+                    <div class="episode-info">
+                        <span id="currentEpisodeInfo">فصل 1 قسمت 1</span>
+                    </div>
+                    {% endif %}
+                    <div class="video-quality-selector">
+                        <span>کیفیت:</span>
+                        <select class="form-select form-select-sm">
+                            <option value="480">480p</option>
+                            <option value="720" selected>720p</option>
+                            <option value="1080">1080p</option>
+                            <option value="4k">4K</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trailer Modal -->
+    <div class="modal fade" id="trailerModal" tabindex="-1" aria-labelledby="trailerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trailerModalLabel">تریلر {{m.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="trailer-container">
+                        <div class="trailer-placeholder">
+                            <p>پخش تریلر در اینجا</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Episode List Section (Only for Series) -->
+    {% if m.movie_or_not == "سریال" %}
+    <section class="episodes-section py-5">
+        <div class="container">
+            <h3 class="section-title mb-4">لیست قسمت‌ها</h3>
+            <div class="episodes-container">
+                {% for season in ""|ljust:m.season_number %}
+                <div class="season-card mb-4">
+                    <div class="season-header">
+                        <h4 class="season-title">
+                            <i class="fas fa-list-ol me-2"></i>
+                            فصل {{ forloop.counter }}
+                        </h4>
+                        <span class="episode-count">{{ m.ep_number }} قسمت</span>
+                    </div>
+                    <div class="episodes-grid">
+                        {% for episode in ""|ljust:m.ep_number %}
+                        <div class="episode-card" data-season="{{ forloop.parentloop.counter }}" data-episode="{{ forloop.counter }}">
+                            <div class="episode-number">
+                                <span>{{ forloop.counter }}</span>
+                            </div>
+                            <div class="episode-info">
+                                <h6 class="episode-title">قسمت {{ forloop.counter }}</h6>
+                                <p class="episode-duration">45 دقیقه</p>
+                            </div>
+                            <div class="episode-actions">
+                                <button class="btn btn-sm btn-primary play-episode-btn" 
+                                        data-season="{{ forloop.parentloop.counter }}" 
+                                        data-episode="{{ forloop.counter }}">
+                                    <i class="fas fa-play me-1"></i>
+                                    پخش
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Movie Details Section -->
+    <section class="movie-details-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Description -->
+                    <div class="detail-card mb-4">
+                        <h3 class="detail-title">
+                            <i class="fas fa-align-left me-2"></i>
+                            توضیحات
+                        </h3>
+                        <div class="detail-content">
+                            <p class="movie-description">{{m.decriptions}}</p>
+                        </div>
+                    </div>
+
+                    <!-- Category Info -->
+                    <div class="detail-card mb-4">
+                        <h3 class="detail-title">
+                            <i class="fas fa-tags me-2"></i>
+                            اطلاعات دسته‌بندی
+                        </h3>
+                        <div class="detail-content">
+                            <div class="category-info">
+                                <div class="info-item">
+                                    <strong>ژانر:</strong>
+                                    <span class="category-badge">{{m.category.name}}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>توضیحات ژانر:</strong>
+                                    <span>{{m.category.descriptions}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Movie Specifications -->
+                    <div class="specs-card">
+                        <h4 class="specs-title">مشخصات {% if m.movie_or_not == "سریال" %}سریال{% else %}فیلم{% endif %}</h4>
+                        <div class="specs-list">
+                            <div class="spec-item">
+                                <div class="spec-label">نام</div>
+                                <div class="spec-value">{{m.name}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">وضعیت</div>
+                                <div class="spec-value">
+                                    <span class="status-badge">{{m.get_status_display}}</span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">نوع</div>
+                                <div class="spec-value">{{m.movie_or_not}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">ژانر</div>
+                                <div class="spec-value">{{m.category.name}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">کشور سازنده</div>
+                                <div class="spec-value">{{m.country}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">امتیاز IMDB</div>
+                                <div class="spec-value">
+                                    <span class="imdb-rating">{{m.imdb_rate}}/10</span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">کارگردان</div>
+                                <div class="spec-value">{{m.director}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">نویسنده</div>
+                                <div class="spec-value">{{m.autor}}</div>
+                            </div>
+                            {% if m.movie_or_not == "Se" %}
+                            <div class="spec-item">
+                                <div class="spec-label">تعداد فصل‌ها</div>
+                                <div class="spec-value">{{m.season_number}}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">تعداد قسمت‌ها</div>
+                                <div class="spec-value">{{m.ep_number}}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions-card mt-4">
+                        <h5 class="actions-title">عملیات سریع</h5>
+                        <div class="actions-buttons">
+                            <button class="btn btn-primary w-100 mb-2 play-action-btn" data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <i class="fas fa-play me-2"></i>
+                                {% if m.movie_or_not == "Se" %}پخش سریال{% else %}پخش فیلم{% endif %}
+                            </button>
+                            <button class="btn btn-outline-secondary w-100 mb-2">
+                                <i class="fas fa-download me-2"></i>
+                                دانلود
+                            </button>
+                            <button class="btn btn-outline-secondary w-100 mb-2 trailer-btn" data-bs-toggle="modal" data-bs-target="#trailerModal">
+                                <i class="fas fa-film me-2"></i>
+                                مشاهده تریلر
+                            </button>
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-share-alt me-2"></i>
+                                اشتراک‌گذاری
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Related Movies Section -->
+    <section class="related-movies-section py-6 bg-dark">
+        <div class="container">
+            <h3 class="section-title mb-4">فیلم‌های مشابه در ژانر {{m.category.name}} :</h3>
+            <div class="row" id="related-movies-container">
+                <section class="py-5 bg-dark">
+                <div class="row g-4">
+                {% for mt in mr %}
+                {% if mt.category == m.category %}
+                {% if not mt.name == m.name %}
+                    <div class="col-md-4 col-sm-6">
+                    <div class="category-card fade-in-up">
+                        <div class="category-img" style="background-image: url('{{mt.pictrue.url}}');"></div>
+                        <div class="category-content">
+                            <h3 class="category-title">{{mt.name}}</h3>
+                            <p class="category-desc">{{mt.descriptions|truncatewords:51}}</p>
+                            <a href="{% url "web:detail" mt.id %}" class="watch_same">تماشا کنید</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                
+                    
+                
+            </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Movie Header Section */
+    .movie-header-section {
+        padding: 80px 0;
+        position: relative;
+    }
+
+    .movie-poster-container {
+        position: relative;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+
+    .movie-poster {
+        width: 100%;
+        height: auto;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .movie-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: var(--highlight-color);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    /* Play Button Overlay */
+    .play-button-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .movie-poster-container:hover .play-button-overlay {
+        opacity: 1;
+    }
+
+    .play-btn-main {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border: none;
+        color: white;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(233, 69, 96, 0.5);
+    }
+
+    .play-btn-main:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(233, 69, 96, 0.7);
+    }
+
+    .play-btn-main i {
+        margin-right: -3px;
+    }
+
+    .movie-header-content {
+        color: white;
+    }
+
+    .movie-badges .badge {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-left: 10px;
+    }
+
+    .status-badge {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+    }
+
+    .category-badge {
+        background: linear-gradient(45deg, #0f3460, #4e54c8);
+    }
+
+    .movie-title {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .movie-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .imdb-rating {
+        color: #ffc107;
+        font-weight: 600;
+    }
+
+    .movie-crew {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .crew-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .crew-item strong {
+        color: var(--highlight-color);
+        margin-left: 5px;
+    }
+
+    .movie-actions .btn {
+        border-radius: 25px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .movie-actions .btn-primary {
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border: none;
+    }
+
+    .movie-actions .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+    }
+
+    .movie-actions .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Quick Play Section */
+    .quick-play-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .quick-play-title {
+        color: var(--highlight-color);
+        font-weight: 600;
+    }
+
+    .episode-btn, .trailer-btn {
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 0.85rem;
+    }
+
+    /* Season and Episode Selector */
+    .season-episode-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .season-episode-selector .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+        border-radius: 20px;
+    }
+
+    /* Video Player Modal */
+    .video-player-container {
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .video-placeholder {
+        width: 100%;
+        height: 500px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .loading-spinner {
+        text-align: center;
+    }
+
+    .loading-spinner .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid var(--highlight-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .video-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .video-player-container:hover .video-controls {
+        opacity: 1;
+    }
+
+    .progress-container {
+        margin-bottom: 15px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .progress-fill {
+        width: 30%;
+        height: 100%;
+        background: var(--highlight-color);
+        border-radius: 3px;
+        transition: width 0.1s ease;
+    }
+
+    .control-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .control-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .control-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .time-display {
+        color: white;
+        font-size: 14px;
+    }
+
+    /* Episode Navigation */
+    .episode-navigation {
+        display: flex;
+        gap: 5px;
+    }
+
+    .episode-info {
+        color: var(--text-color);
+        font-weight: 600;
+    }
+
+    .video-quality-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .video-quality-selector .form-select {
+        width: auto;
+    }
+
+    /* Trailer Modal */
+    .trailer-container {
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .trailer-placeholder {
+        width: 100%;
+        height: 400px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    /* Episode List Section */
+    .episodes-section {
+        background: var(--secondary-color);
+    }
+
+    .season-card {
+        background: var(--primary-color);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .season-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .season-title {
+        color: var(--highlight-color);
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    .episode-count {
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .episodes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+    }
+
+    .episode-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .episode-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .episode-number {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #e94560, #ff7e5f);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .episode-info {
+        flex: 1;
+    }
+
+    .episode-title {
+        color: var(--text-color);
+        font-size: 1rem;
+        margin: 0 0 5px 0;
+        font-weight: 600;
+    }
+
+    .episode-duration {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    .episode-actions .btn {
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 0.8rem;
+    }
+
+    /* Quick Actions Card */
+    .quick-actions-card {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .actions-title {
+        color: var(--highlight-color);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .actions-buttons .btn {
+        border-radius: 10px;
+        padding: 10px 15px;
+    }
+
+    /* Rest of the styles remain the same as previous version */
+    .detail-card, .specs-card {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-title {
+        color: var(--highlight-color);
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .movie-description {
+        font-size: 1.1rem;
+        text-align: justify;
+    }
+
+    .specs-title {
+        color: var(--highlight-color);
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .specs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .spec-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .spec-item:last-child {
+        border-bottom: none;
+    }
+
+    .spec-label {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .spec-value {
+        color: var(--text-color);
+        text-align: left;
+    }
+
+    .section-title {
+        margin-top: 21px;
+        color: var(--text-color);
+        font-size: 1.5rem;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(to left, var(--highlight-color), transparent);
+        border-radius: 2px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .movie-header-section {
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .movie-meta, .movie-crew {
+            justify-content: center;
+        }
+
+        .movie-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .movie-actions .btn {
+            width: 100%;
+            margin: 5px 0 !important;
+        }
+
+        .quick-play-section .d-flex {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .quick-play-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .season-episode-selector {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .season-episode-selector .form-select {
+            width: 100% !important;
+        }
+
+        .season-episode-selector .btn {
+            width: 100%;
+        }
+
+        .episodes-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .season-header {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .video-placeholder {
+            height: 300px;
+        }
+
+        .spec-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .spec-value {
+            text-align: right;
+        }
+
+    }
+
+    @media (max-width: 576px) {
+        .movie-title {
+            font-size: 2rem;
+        }
+
+        .detail-card, .specs-card {
+            padding: 20px;
+        }
+
+        .play-btn-main {
+            width: 60px;
+            height: 60px;
+            font-size: 18px;
+        }
+    }
+
+    .watch_same {
+        background-color: #e94560;
+        border: none;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        color: white;
+        text-decoration: none;
+    }
+
+    .none-re-bu {
+        font-size: 21px;
+        color: #e94560;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if content is a series
+        const isSeries = "{{ m.movie_or_not }}" === "Se";
+        
+        // Episode management variables
+        let currentSeason = 1;
+        let currentEpisode = 1;
+        const totalSeasons = {{ m.season_number|default:1 }};
+        const totalEpisodes = {{ m.ep_number|default:1 }};
+
+        // Play button functionality
+        const playButtons = document.querySelectorAll('.play-action-btn, .play-btn-main');
+        const trailerButton = document.querySelector('.trailer-btn');
+        
+        // Video player simulation
+        const videoModal = document.getElementById('videoModal');
+        const playPauseBtn = document.querySelector('.play-pause-btn');
+        const progressFill = document.querySelector('.progress-fill');
+        const currentTimeEl = document.querySelector('.current-time');
+        const durationEl = document.querySelector('.duration');
+        
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 3600; // 1 hour in seconds
+        
+        // Format time function
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Initialize time display
+        durationEl.textContent = formatTime(duration);
+        currentTimeEl.textContent = formatTime(currentTime);
+
+        // Season and Episode Selection
+        if (isSeries) {
+            const seasonSelector = document.querySelector('.season-selector');
+            const episodeSelector = document.querySelector('.episode-selector');
+            const playSelectedBtn = document.querySelector('.play-selected-btn');
+            const playEpisodeButtons = document.querySelectorAll('.play-episode-btn');
+            const prevEpisodeBtn = document.querySelector('.prev-episode-btn');
+            const nextEpisodeBtn = document.querySelector('.next-episode-btn');
+            const currentSeasonEpisode = document.getElementById('currentSeasonEpisode');
+            const currentEpisodeInfo = document.getElementById('currentEpisodeInfo');
+
+            // Update episode selector based on season selection
+            seasonSelector.addEventListener('change', function() {
+                currentSeason = parseInt(this.value);
+                updateEpisodeDisplay();
+            });
+
+            episodeSelector.addEventListener('change', function() {
+                currentEpisode = parseInt(this.value);
+                updateEpisodeDisplay();
+            });
+
+            // Play selected episode
+            playSelectedBtn.addEventListener('click', function() {
+                playEpisode(currentSeason, currentEpisode);
+            });
+
+            // Play episode from list
+            playEpisodeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const season = parseInt(this.getAttribute('data-season'));
+                    const episode = parseInt(this.getAttribute('data-episode'));
+                    playEpisode(season, episode);
+                });
+            });
+
+            // Previous episode
+            prevEpisodeBtn.addEventListener('click', function() {
+                if (currentEpisode > 1) {
+                    currentEpisode--;
+                } else if (currentSeason > 1) {
+                    currentSeason--;
+                    currentEpisode = totalEpisodes;
+                }
+                updateEpisodeDisplay();
+                playEpisode(currentSeason, currentEpisode);
+            });
+
+            // Next episode
+            nextEpisodeBtn.addEventListener('click', function() {
+                if (currentEpisode < totalEpisodes) {
+                    currentEpisode++;
+                } else if (currentSeason < totalSeasons) {
+                    currentSeason++;
+                    currentEpisode = 1;
+                }
+                updateEpisodeDisplay();
+                playEpisode(currentSeason, currentEpisode);
+            });
+
+            function updateEpisodeDisplay() {
+                if (seasonSelector) seasonSelector.value = currentSeason;
+                if (episodeSelector) episodeSelector.value = currentEpisode;
+                if (currentSeasonEpisode) currentSeasonEpisode.textContent = `فصل ${currentSeason} قسمت ${currentEpisode}`;
+                if (currentEpisodeInfo) currentEpisodeInfo.textContent = `فصل ${currentSeason} قسمت ${currentEpisode}`;
+            }
+
+            function playEpisode(season, episode) {
+                currentSeason = season;
+                currentEpisode = episode;
+                updateEpisodeDisplay();
+                
+                showNotification(`شروع پخش فصل ${season} قسمت ${episode}`);
+                
+                // Reset player for new episode
+                resetPlayer();
+                
+                // Show video modal
+                const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+                modal.show();
+            }
+
+            // Initialize episode display
+            updateEpisodeDisplay();
+        }
+        
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            const icon = this.querySelector('i');
+            
+            if (isPlaying) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                simulatePlayback();
+            } else {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            }
+        });
+        
+        // Simulate video playback
+        function simulatePlayback() {
+            if (isPlaying && currentTime < duration) {
+                currentTime += 1;
+                const progress = (currentTime / duration) * 100;
+                progressFill.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+                
+                setTimeout(simulatePlayback, 1000);
+            } else if (currentTime >= duration) {
+                isPlaying = false;
+                playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                playPauseBtn.querySelector('i').classList.add('fa-play');
+                
+                // Auto play next episode for series
+                if (isSeries && currentEpisode < totalEpisodes) {
+                    setTimeout(() => {
+                        currentEpisode++;
+                        updateEpisodeDisplay();
+                        playEpisode(currentSeason, currentEpisode);
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Progress bar click
+        document.querySelector('.progress-bar').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const percentage = clickX / width;
+            
+            currentTime = duration * percentage;
+            progressFill.style.width = `${percentage * 100}%`;
+            currentTimeEl.textContent = formatTime(currentTime);
+        });
+        
+        // Main play buttons
+        playButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isSeries) {
+                    playEpisode(1, 1);
+                } else {
+                    showNotification('شروع پخش فیلم');
+                    resetPlayer();
+                }
+            });
+        });
+        
+        // Reset player function
+        function resetPlayer() {
+            currentTime = 0;
+            progressFill.style.width = '0%';
+            currentTimeEl.textContent = '00:00';
+            isPlaying = false;
+            playPauseBtn.querySelector('i').classList.remove('fa-pause');
+            playPauseBtn.querySelector('i').classList.add('fa-play');
+        }
+        
+        // Trailer button
+        if (trailerButton) {
+            trailerButton.addEventListener('click', function() {
+                showNotification('پخش تریلر');
+            });
+        }
+        
+        // Favorite button functionality
+        const favoriteBtn = document.querySelector('.favorite-btn');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+                icon.classList.toggle('text-danger');
+                
+                if (icon.classList.contains('fas')) {
+                    showNotification('به علاقه‌مندی‌ها اضافه شد');
+                } else {
+                    showNotification('از علاقه‌مندی‌ها حذف شد');
+                }
+            });
+        }
+        
+        // Add to list button
+        const addToListBtn = document.querySelector('.add-to-list-btn');
+        if (addToListBtn) {
+            addToListBtn.addEventListener('click', function() {
+                showNotification('به لیست تماشا اضافه شد');
+            });
+        }
+        
+        // Fullscreen functionality
+        const fullscreenBtn = document.querySelector('.fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                const videoContainer = document.querySelector('.video-player-container');
+                
+                if (!document.fullscreenElement) {
+                    videoContainer.requestFullscreen().catch(err => {
+                        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+        }
+        
+        // Volume button
+        const volumeBtn = document.querySelector('.volume-btn');
+        if (volumeBtn) {
+            volumeBtn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-volume-up')) {
+                    icon.classList.remove('fa-volume-up');
+                    icon.classList.add('fa-volume-mute');
+                    showNotification('صوت قطع شد');
+                } else {
+                    icon.classList.remove('fa-volume-mute');
+                    icon.classList.add('fa-volume-up');
+                    showNotification('صوت وصل شد');
+                }
+            });
+        }
+        
+        // Quality selector
+        const qualitySelector = document.querySelector('.video-quality-selector select');
+        if (qualitySelector) {
+            qualitySelector.addEventListener('change', function() {
+                showNotification(`کیفیت ویدیو به ${this.value} تغییر کرد`);
+            });
+        }
+        
+        function showNotification(message) {
+            // Create a simple notification
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success position-fixed';
+            notification.style.cssText = 'top: 20px; left: 20px; z-index: 9999; min-width: 300px;';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    });
+</script>
+
+{% endblock content %}
