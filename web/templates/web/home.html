@@ -121,6 +121,10 @@
                                 <button class="movie-action-btn"><i class="far fa-heart"></i></button>
                                 <button class="movie-action-btn"><i class="fas fa-plus"></i></button>
                                 <button class="movie-action-btn"><i class="fas fa-share-alt"></i></button>
+                                <button class="movie-action-btn like-btn {% if m.is_liked_by_user %}liked{% endif %}" ata-movie-id="{{ m.id }}">
+                                    <i class="{% if m.is_liked_by_user %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                    <span class="likes-count">{{ m.like_counts }}</span>
+                                </button>
                             </div>
                         </div>
                         <div class="movie-content">
