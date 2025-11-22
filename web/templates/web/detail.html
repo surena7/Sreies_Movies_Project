@@ -54,7 +54,7 @@
                                         (<span id="like-count">{{ m.total_likes }}</span>)
                                     </button>
                                     {% else %}
-                                    <a href="{% url 'account:login' %}" class="btn like-btn">
+                                    <a href="{% url 'login' %}" class="btn like-btn">
                                         <span>🤍</span> Like (<span>{{ m.total_likes }}</span>)
                                     </a>
                                     {% endif %}
@@ -273,7 +273,7 @@
                 {% else %}
                 <div class="alert alert-info text-center">
                     <p>برای ثبت نظر باید 
-                        <a href="{% url 'account:login' %}" class="alert-link">وارد حساب کاربری</a> 
+                        <a href="{% url 'login' %}" class="alert-link">وارد حساب کاربری</a> 
                         خود شوید
                     </p>
                 </div>
