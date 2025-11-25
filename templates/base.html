@@ -42,31 +42,26 @@
                 </nav>
                 
                 <div class="d-flex align-items-center">
-                    <div class="search-box me-3 d-none d-md-block">
-                        <input type="text" placeholder="جستجوی فیلم، سریال، بازیگر...">
-                        <button><i class="fas fa-search"></i></button>
-                    </div>
-                    
+                    <a href="{% url "web:Search_Page" %}"><i class="fa-solid fa-magnifying-glass"></i></a>
+                    {% if user.is_authenticated %}
                     <div class="user-actions">
-                        <a href="#" class="position-relative">
-                            <i class="fas fa-bell"></i>
-                            <span class="badge">3</span>
-                        </a>
-                        <a href="#"><i class="fas fa-heart"></i></a>
+                        {% if not user.is_staff %}<a href="{% url "accounts:favorites_list" %}"><i class="fas fa-heart"></i></a>{% endif %}
                         <div class="dropdown d-inline-block">
                             <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle"></i>
                             </a>
+
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="#">پروفایل من</a></li>
-                                <li><a class="dropdown-item" href="#">لیست من</a></li>
-                                <li><a class="dropdown-item" href="#">تاریخچه تماشا</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">خروج</a></li>
+                               
+                                {% if user.is_staff %}
+                                <li><a class="dropdown-item" href="{% url "accounts:admin_dashboard" %}">پنل ادمین</a></li>
+                                {% else %}
+                                <li><a class="dropdown-item" href="{% url "accounts:user_dashboard" %}">داشبورد من</a></li>
+                                {% endif %}
                             </ul>
                         </div>
+                    {% endif %}
                     </div>
-                    
                     <button class="navbar-toggler d-lg-none ms-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
                         <i class="fas fa-bars"></i>
                     </button>

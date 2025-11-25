@@ -1,0 +1,150 @@
+<!-- accounts/templates/accounts/user_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}جزییات کاربر - {{ user.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/accounts/css/user_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="user-detail-page">
+    <div class="container mt-4">
+        <!-- هدر صفحه -->
+        <div class="user-detail-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="user-detail-title">👤 جزییات کاربر</h1>
+                <div>
+                    <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-right me-1"></i>لیست کاربران
+                    </a>
+                    <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-tachometer-alt me-1"></i>داشبورد
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت پروفایل کاربر -->
+        <div class="user-profile-card">
+            <div class="user-profile-header">
+                <div class="user-avatar-large">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="user-basic-info">
+                    <h2>{{ user.username }}</h2>
+                    <div class="user-email">{{ user.email|default:"بدون ایمیل" }}</div>
+                    <div class="user-join-date">
+                        عضو since {{ user.date_joined|date:"Y/m/d" }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <!-- اطلاعات شخصی -->
+                <div class="info-section">
+                    <h3 class="info-section-title">
+                        <i class="fas fa-user-circle me-2"></i>اطلاعات شخصی
+                    </h3>
+                    <div class="detail-list">
+                        <div class="detail-item">
+                            <span class="detail-label">نام کاربری:</span>
+                            <span class="detail-value">{{ user.username }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">ایمیل:</span>
+                            <span class="detail-value">{{ user.email|default:"-" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">نام:</span>
+                            <span class="detail-value">{{ user.first_name|default:"-" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">نام خانوادگی:</span>
+                            <span class="detail-value">{{ user.last_name|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اطلاعات حساب -->
+                <div class="info-section">
+                    <h3 class="info-section-title">
+                        <i class="fas fa-info-circle me-2"></i>اطلاعات حساب
+                    </h3>
+                    <div class="detail-list">
+                        <div class="detail-item">
+                            <span class="detail-label">تاریخ ثبت‌نام:</span>
+                            <span class="detail-value">{{ user.date_joined|date:"Y/m/d - H:i" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">آخرین ورود:</span>
+                            <span class="detail-value">{{ user.last_login|date:"Y/m/d - H:i"|default:"-" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">وضعیت حساب:</span>
+                            <span class="detail-value">
+                                {% if user.is_active %}
+                                    <span class="status-badge">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">غیرفعال</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- وضعیت‌ها -->
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">نقش کاربر</div>
+                    <div class="status-value">
+                        {% if user.is_superuser %}
+                            <span class="role-badge role-superuser">سوپر کاربر</span>
+                        {% elif user.is_staff %}
+                            <span class="role-badge role-staff">مدیر</span>
+                        {% else %}
+                            <span class="role-badge role-user">کاربر عادی</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">احراز هویت ایمیل</div>
+                    <div class="status-value">
+                        {% if user.is_active %}
+                            <span class="status-badge">تایید شده</span>
+                        {% else %}
+                            <span class="badge bg-secondary">تایید نشده</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- مدیریت کاربر -->
+            <div class="management-actions">
+                <h4 class="actions-title">مدیریت کاربر</h4>
+                <div class="action-buttons-grid">
+                    {% if user.id != request.user.id %}
+                    <a href="{% url 'accounts:toggle_user_active' user.id %}" 
+                       class="btn action-btn btn-toggle-user">
+                        <i class="fas {% if user.is_active %}fa-ban{% else %}fa-check{% endif %}"></i>
+                        {% if user.is_active %}غیرفعال کردن کاربر{% else %}فعال کردن کاربر{% endif %}
+                    </a>
+                    {% else %}
+                    <div class="warning-message">
+                        <i class="fas fa-info-circle me-2"></i>
+                        شما نمی‌توانید حساب خود را مدیریت کنید
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'accounts:user_list' %}" class="btn action-btn btn-back">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت به لیست کاربران
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

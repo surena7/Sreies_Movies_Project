@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}جزییات اشتراک من{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="movie-title">👑 اشتراک من</h1>
+                <a href="{% url 'accounts:user_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-1"></i>بازگشت به داشبورد
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="detail-card">
+                <h3 class="detail-title text-center">
+                    <i class="fas fa-crown me-2"></i>وضعیت اشتراک
+                </h3>
+
+                {% if has_subscription %}
+                <!-- کاربر اشتراک فعال دارد -->
+                <div class="text-center mb-4">
+                    <div class="stat-icon text-warning mb-3">
+                        <i class="fas fa-crown fa-3x"></i>
+                    </div>
+                    <h3 class="text-success">اشتراک شما فعال است!</h3>
+                    <p class="text-muted">از تمامی امکانات پرمیوم بهره‌مند هستید</p>
+                </div>
+
+                <div class="specs-card">
+                    <div class="specs-list">
+                        <div class="spec-item">
+                            <span class="spec-label">نوع پلن:</span>
+                            <span class="spec-value">{{ subscription.plan_name }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">تاریخ شروع:</span>
+                            <span class="spec-value">{{ subscription.start_date|date:"Y/m/d" }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">تاریخ انقضا:</span>
+                            <span class="spec-value">{{ subscription.expiry_date|date:"Y/m/d" }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">وضعیت:</span>
+                            <span class="spec-value">
+                                <span class="badge status-badge">فعال</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    اشتراک شما تا {{ subscription.expiry_date|date:"Y/m/d" }} اعتبار دارد
+                </div>
+
+                {% else %}
+                <!-- کاربر اشتراک ندارد -->
+                <div class="text-center mb-4">
+                    <div class="stat-icon text-muted mb-3">
+                        <i class="fas fa-crown fa-3x"></i>
+                    </div>
+                    <h3 class="text-warning">اشتراک پرمیوم</h3>
+                    <p class="text-muted">برای دسترسی به تمامی محتوا و امکانات، اشتراک پرمیوم تهیه کنید</p>
+                </div>
+
+                <div class="subscription-card text-center">
+                    <h4 class="subscription-title">پلن رایگان</h4>
+                    <div class="subscription-price">
+                        رایگان
+                    </div>
+                    
+                    <ul class="subscription-features">
+                        <li><i class="fas fa-check text-success me-2"></i>دسترسی به محتوای محدود</li>
+                        <li><i class="fas fa-check text-success me-2"></i>کیفیت استاندارد</li>
+                        <li><i class="fas fa-times text-danger me-2"></i>محتوای انحصاری</li>
+                        <li><i class="fas fa-times text-danger me-2"></i>دانلود محتوا</li>
+                        <li><i class="fas fa-times text-danger me-2"></i>حذف تبلیغات</li>
+                    </ul>
+
+                    <a href="{% url 'web:subscription' %}" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-arrow-up me-1"></i>ارتقاء به پرمیوم
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

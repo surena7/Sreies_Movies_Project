@@ -1,0 +1,218 @@
+<!-- SeriesMovies/templates/SeriesMovies/search_results.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}نتایج جستجو برای "{{ search_query }}" - سریالیت{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "web/css/search_result.css" %}">
+{% endblock %}
+
+{% block content %}
+<div class="search-results-page">
+    <!-- هدر نتایج -->
+    <section class="results-header">
+        <div class="container">
+            <div class="results-hero">
+                <div class="results-info">
+                    <div class="search-breadcrumb">
+                        <a href="{% url 'web:Search_Page' %}" class="breadcrumb-link">
+                            <i class="fas fa-arrow-right"></i>
+                            جستجوی جدید
+                        </a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">نتایج جستجو</span>
+                    </div>
+                    
+                    <h1 class="results-title">
+                        <i class="fas fa-search results-title-icon"></i>
+                        نتایج جستجو
+                    </h1>
+                    
+                    {% if search_query %}
+                    <div class="search-query-display">
+                        <span class="query-text">"{{ search_query }}"</span>
+                        <span class="results-count">{{ results_count }} نتیجه</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="results-actions">
+                    <div class="action-buttons">
+                        <button class="action-btn filter-btn" id="filterToggle">
+                            <i class="fas fa-filter"></i>
+                            فیلترها
+                        </button>
+                        <div class="sort-dropdown">
+                            <select class="sort-select" id="sortSelect">
+                                <option value="newest">جدیدترین</option>
+                                <option value="rating_high">بالاترین امتیاز</option>
+                                <option value="name_asc">الفبایی (صعودی)</option>
+                                <option value="name_desc">الفبایی (نزولی)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- فیلترها -->
+    <section class="filters-section" id="filtersSection">
+        <div class="container">
+            <div class="filters-card">
+                <div class="filters-header">
+                    <h3><i class="fas fa-sliders-h"></i> فیلترهای پیشرفته</h3>
+                    <button class="close-filters" id="closeFilters">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="filters-content">
+                    <div class="filter-group">
+                        <label>دسته‌بندی</label>
+                        <select class="filter-select" id="categoryFilter">
+                            <option value="">همه دسته‌بندی‌ها</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>امتیاز IMDb</label>
+                        <div class="rating-filter">
+                            <input type="range" min="0" max="10" step="0.5" value="0" class="rating-slider" id="ratingSlider">
+                            <span class="rating-value" id="ratingValue">همه امتیازها</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>سال تولید</label>
+                        <div class="year-filters">
+                            <input type="number" placeholder="از سال" class="year-input" id="yearFrom" min="1900" max="2024">
+                            <span class="year-separator">تا</span>
+                            <input type="number" placeholder="تا سال" class="year-input" id="yearTo" min="1900" max="2024">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="btn btn-secondary" id="resetFilters">
+                            <i class="fas fa-redo"></i>
+                            بازنشانی
+                        </button>
+                        <button class="btn btn-primary" id="applyFilters">
+                            <i class="fas fa-check"></i>
+                            اعمال فیلترها
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- نتایج -->
+    <section class="results-section">
+        <div class="container">
+            {% if results_count > 0 %}
+            <div class="results-grid" id="resultsGrid">
+                {% for movie in movies %}
+                <div class="movie-result-card" data-movie-id="{{ movie.id }}" data-rating="{{ movie.imdb_rate }}" data-year="{{ movie.created_at.year }}">
+                    <div class="movie-poster-container">
+                        <div class="movie-poster" style="background-image: url('{% if movie.pictrue %}{{ movie.pictrue.url }}{% else %}{% static 'images/default-poster.jpg' %}{% endif %}');">
+                            <div class="movie-overlay">
+                                <div class="movie-actions">
+                                    <button class="action-btn favorite-btn {% if movie.is_favorited %}favorited{% endif %}" 
+                                            data-movie-id="{{ movie.id }}">
+                                        <i class="{% if movie.is_favorited %}fas{% else %}far{% endif %} fa-heart"></i>
+                                    </button>
+                                    <button class="action-btn play-btn" onclick="window.location.href='{% url 'web:detail' movie.id %}'">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="movie-badges">
+                                {% if movie.imdb_rate >= 8 %}
+                                <span class="badge premium-badge">
+                                    <i class="fas fa-crown"></i>
+                                 پر طرفدار
+                                </span>
+                                {% endif %}
+                                <span class="badge rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    {{ movie.imdb_rate }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="movie-info">
+                        <h3 class="movie-title">
+                            <a href="{% url 'web:detail' movie.id %}">{{ movie.name }}</a>
+                        </h3>
+                        
+                        <div class="movie-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-user"></i>
+                                {{ movie.director|default:"نامشخص" }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ movie.created_at.year }}
+                            </span>
+                        </div>
+                        
+                        <div class="movie-category">
+                            <span class="category-tag">{{ movie.category.name|default:"فیلم" }}</span>
+                        </div>
+                        
+                        <p class="movie-description">
+                            {{ movie.decriptions|truncatewords:20 }}
+                        </p>
+                        
+                        <div class="movie-footer">
+                            <a href="{% url 'web:detail' movie.id %}" class="watch-btn">
+                                <i class="fas fa-play"></i>
+                                تماشا کنید
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- حالت بدون نتیجه -->
+            <div class="no-results">
+                <div class="no-results-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2>نتیجه‌ای یافت نشد</h2>
+                <p>متأسفانه هیچ فیلمی مطابق با جستجوی شما پیدا نشد.</p>
+                <div class="no-results-suggestions">
+                    <h4>پیشنهادات:</h4>
+                    <ul>
+                        <li>از کلمات کلیدی مختلف استفاده کنید</li>
+                        <li>املا کلمات را بررسی کنید</li>
+                        <li>جستجوی خود را کلی‌تر کنید</li>
+                    </ul>
+                </div>
+                <a href="{% url 'web:Search_Page' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-redo"></i>
+                    جستجوی مجدد
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- لودینگ -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>در حال بارگذاری نتایج...</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'web/js/search_results.js' %}"></script>
+{% endblock %}

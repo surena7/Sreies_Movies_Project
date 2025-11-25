@@ -1,0 +1,129 @@
+<!-- accounts/templates/accounts/admin_dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}داشبورد مدیریت کاربران{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/accounts/css/admin_panel.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4 movie-title">📊 داشبورد مدیریت کاربران</h1>
+            </div>
+        </div>
+
+        <!-- کارت‌های آمار -->
+        <div class="admin-stats">
+            <div class="admin-stat-card primary">
+                <div class="admin-stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="admin-stat-number">{{ total_users }}</h3>
+                <p class="admin-stat-text">کل کاربران</p>
+            </div>
+            
+            <div class="admin-stat-card success">
+                <div class="admin-stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3 class="admin-stat-number">{{ active_users }}</h3>
+                <p class="admin-stat-text">کاربران فعال</p>
+            </div>
+            
+            <div class="admin-stat-card warning">
+                <div class="admin-stat-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="admin-stat-number">{{ staff_users }}</h3>
+                <p class="admin-stat-text">کاربران مدیر</p>
+            </div>
+            
+            <div class="admin-stat-card info">
+                <div class="admin-stat-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="admin-stat-number">{{ new_users_today }}</h3>
+                <p class="admin-stat-text">کاربران جدید امروز</p>
+            </div>
+        </div>
+
+        <!-- جدول کاربران اخیر -->
+        <div class="admin-section">
+            <div class="admin-section-header">
+                <h3 class="admin-section-title">
+                    <i class="fas fa-clock me-2"></i>آخرین کاربران ثبت‌نام کرده
+                </h3>
+            </div>
+            <div class="admin-table">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>نام کاربری</th>
+                                <th>ایمیل</th>
+                                <th>تاریخ ثبت‌نام</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td data-label="نام کاربری">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            {{ user.username|first|upper }}
+                                        </div>
+                                        <strong>{{ user.username }}</strong>
+                                    </div>
+                                </td>
+                                <td data-label="ایمیل">{{ user.email }}</td>
+                                <td data-label="تاریخ ثبت‌نام">{{ user.date_joined|date:"Y/m/d" }}</td>
+                                <td data-label="وضعیت">
+                                    {% if user.is_active %}
+                                        <span class="status-badge">فعال</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">غیرفعال</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="عملیات">
+                                    <a href="{% url 'accounts:user_detail' user.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- لینک‌های سریع -->
+        <div class="admin-section">
+            <div class="admin-section-header">
+                <h3 class="admin-section-title">
+                    <i class="fas fa-bolt me-2"></i>دسترسی سریع
+                </h3>
+            </div>
+            <div class="quick-actions-grid">
+                <div class="quick-action-item">
+                    <div class="quick-action-icon text-primary">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="quick-action-text">لیست کاربران</div>
+                    <a href="{% url 'accounts:user_list' %}" class="btn btn-primary btn-sm">
+                        مشاهده
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -14,4 +14,6 @@ urlpatterns = [
     path("post_detail/<int:post_id>/", post_detail, name="post_detail"),
     path('like/<int:movie_id>/', like_post, name='like_post'),
     path("comment/delete/<int:comment_id>/",delete_comment, name="delete_comment"),
+    path('search/',movie_search, name='Search_Page'),
+    path('search/results/',search_results, name='search_results'),
 ]

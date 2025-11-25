@@ -10,6 +10,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.db.models import Q
+from .forms import MovieSearchForm
+from django.urls import reverse
+from django.utils.http import urlencode
+
 
 
 
@@ -278,3 +283,48 @@ def post_detail(request , post_id):
     post = Post.objects.get(id=post_id)
     return render(request,"web/post_detail.html",{"post":post})
     
+    
+    
+
+def movie_search(request):
+    if request.method == 'POST':
+        form = MovieSearchForm(request.POST)
+        if form.is_valid():
+            search_query = form.cleaned_data['search_query']
+            
+            url = reverse('web:search_results')
+            params = urlencode({'q': search_query})
+            return redirect(f'{url}?{params}')
+    
+    else:
+        form = MovieSearchForm()
+    
+    return render(request, 'web/search_page.html', {'form': form})
+
+
+def search_results(request):
+    search_query = request.GET.get('q', '').strip()
+    print(f"Search query: '{search_query}'")  # برای دیباگ
+    
+    if search_query:
+        movies = Movies.objects.filter(
+            Q(name__icontains=search_query) | 
+            Q(director__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(autor__icontains=search_query)
+        ).distinct().order_by('-created_at')
+        print(f"Found {movies.count()} movies")  # برای دیباگ
+    else:
+        movies = Movies.objects.none()
+        print("No search query provided")  # برای دیباگ
+    
+    categories = Category.objects.all()
+    
+    context = {
+        'movies': movies,
+        'search_query': search_query,
+        'results_count': movies.count(),
+        'categories': categories
+    }
+    
+    return render(request, 'web/search_result.html', context)

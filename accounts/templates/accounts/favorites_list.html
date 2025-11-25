@@ -1,0 +1,113 @@
+<!-- accounts/templates/accounts/favorites_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لیست علاقه‌مندی‌های من{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "accounts/accounts/css/fa.css" %}">
+{% endblock %}
+
+{% block content %}
+<div class="favorites-page">
+    <div class="container mt-4">
+        <!-- هدر صفحه -->
+        <div class="favorites-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="favorites-title">❤️ علاقه‌مندی‌های من</h1>
+                <a href="{% url 'accounts:user_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-1"></i>بازگشت به داشبورد
+                </a>
+            </div>
+        </div>
+
+        <!-- کارت لیست علاقه‌مندی‌ها -->
+        <div class="favorites-container">
+            <div class="favorites-header-inner">
+                <h3 class="favorites-section-title">
+                    <i class="fas fa-heart text-danger me-2"></i>
+                    تمام محتوای مورد علاقه شما
+                </h3>
+                <span class="favorites-count-badge" id="favorites-count">
+                    {{ favorites|length }} مورد
+                </span>
+            </div>
+
+            {% if favorites %}
+            <div class="favorites-grid" id="favorites-grid">
+                {% for favorite in favorites %}
+                <div class="favorite-card" id="favorite-{{ favorite.id }}">
+                    <div class="favorite-poster" 
+                         style="background-image: url('{% if favorite.movie.pictrue %}{{ favorite.movie.pictrue.url }}{% else %}{% static 'default-poster.jpg' %}{% endif %}');">
+                        <div class="favorite-badge">علاقه‌مندی</div>
+                        <div class="favorite-actions">
+                            <!-- لینک به صفحه جزییات -->
+                            <a href="{% url 'web:detail' favorite.movie.id %}" class="favorite-action-btn" title="تماشا">
+                                <i class="fas fa-play"></i>
+                            </a>
+                            <button class="favorite-action-btn remove-favorite" 
+                                    data-favorite-id="{{ favorite.id }}"
+                                    title="حذف از علاقه‌مندی‌ها">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="favorite-content">
+                        <!-- لینک عنوان به صفحه جزییات -->
+                        <a href="{% url 'web:detail' favorite.movie.id %}" style="text-decoration: none; color: inherit;">
+                            <h4 class="favorite-movie-title">{{ favorite.movie.name }}</h4>
+                        </a>
+                        <div class="favorite-meta">
+                            <span class="favorite-rating">
+                                <i class="fas fa-star"></i> 
+                                {% if favorite.movie.imdb_rate %}
+                                    {{ favorite.movie.imdb_rate }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                            <span class="favorite-year">
+                                {% if favorite.movie.created_at %}
+                                    {{ favorite.movie.created_at|date:"Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="favorite-category">
+                            {% if favorite.movie.category %}
+                                {{ favorite.movie.category.name }}
+                            {% else %}
+                                فیلم
+                            {% endif %}
+                        </span>
+                        <!-- توضیحات فیلم -->
+                        {% if favorite.movie.decriptions %}
+                        <p class="movie-desc" style="margin-top: 10px; font-size: 0.85rem; color: var(--text-secondary);">
+                            {{ favorite.movie.decriptions|truncatewords:15 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-favorites">
+                <div class="empty-favorites-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>لیست علاقه‌مندی‌های شما خالی است</h3>
+                <p>فیلم‌ها و سریال‌های مورد علاقه خود را اینجا ذخیره کنید تا بعداً به راحتی به آنها دسترسی داشته باشید</p>
+                <a href="{% url 'web:home' %}" class="btn btn-primary explore-btn">
+                    <i class="fas fa-play me-2"></i>کشف محتوای جدید
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "accounts/accounts/js/fa.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,87 @@
+<!-- accounts/templates/accounts/user_dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}داشبورد کاربری - {{ user.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/accounts/css/user_panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="user-dashboard">
+    <div class="container mt-4">
+        <!-- هدر داشبورد -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="movie-title">🎬 داشبورد کاربری</h1>
+                    <div class="user-welcome">
+                        <span class="text-muted">خوش آمدید،</span>
+                        <strong class="text-warning">{{ user.username }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های وضعیت -->
+        <div class="dashboard-stats">
+            <!-- وضعیت اشتراک -->
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="specs-title mb-0">
+                        <i class="fas fa-crown me-2"></i>وضعیت اشتراک
+                    </h4>
+                    {% if subscription_info.is_active %}
+                    <span class="badge status-badge">فعال</span>
+                    {% else %}
+                    <span class="badge bg-secondary">رایگان</span>
+                    {% endif %}
+                </div>
+                
+                <div class="specs-list">
+                    <div class="spec-item">
+                        <span class="spec-label">پلن:</span>
+                        <span class="spec-value">{{ subscription_info.plan_name }}</span>
+                    </div>
+                    {% if subscription_info.expiry_date %}
+                    <div class="spec-item">
+                        <span class="spec-label">انقضا:</span>
+                        <span class="spec-value">{{ subscription_info.expiry_date|date:"Y/m/d" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{% url 'accounts:subscription_details' %}" class="btn btn-outline-primary w-100 quick-action-btn">
+                        <i class="fas fa-info-circle me-1"></i>مشاهده جزییات
+                    </a>
+                </div>
+            </div>
+
+            <!-- آمار سریع -->
+            <div class="stat-card">
+                <div class="stat-icon text-danger">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="stat-number">{{ favorites|length }}</h3>
+                <p class="stat-text">علاقه‌مندی‌ها</p>
+                <a href="{% url 'accounts:favorites_list' %}" class="btn btn-outline-primary quick-action-btn">
+                    مشاهده همه
+                </a>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon text-info">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="stat-number">{{ watch_history|length }}</h3>
+                <p class="stat-text">تاریخچه تماشا</p>
+                <a href="{% url 'accounts:watch_history_list' %}" class="btn btn-outline-primary quick-action-btn">
+                    مشاهده همه
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

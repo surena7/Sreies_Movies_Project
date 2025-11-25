@@ -1,0 +1,130 @@
+<!-- accounts/templates/accounts/user_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لیست کاربران{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/accounts/css/user_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="user-list-page">
+    <div class="container mt-4">
+        <!-- هدر صفحه -->
+        <div class="user-list-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="user-list-title">👥 مدیریت کاربران</h1>
+                <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-1"></i>بازگشت به داشبورد
+                </a>
+            </div>
+        </div>
+
+        <!-- کارت لیست کاربران -->
+        <div class="user-list-container">
+            <div class="user-list-header-inner">
+                <h3 class="user-list-section-title">
+                    <i class="fas fa-users me-2"></i>همه کاربران سیستم
+                </h3>
+                <span class="user-count-badge">{{ users.count }} کاربر</span>
+            </div>
+
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="users-table">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>نام کاربری</th>
+                                <th>ایمیل</th>
+                                <th>نام کامل</th>
+                                <th>تاریخ ثبت‌نام</th>
+                                <th>وضعیت</th>
+                                <th>نقش</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td data-label="ردیف">{{ forloop.counter }}</td>
+                                <td data-label="نام کاربری">
+                                    <div class="user-username">
+                                        <div class="user-avatar-small">
+                                            {{ user.username|first|upper }}
+                                        </div>
+                                        <strong>{{ user.username }}</strong>
+                                    </div>
+                                </td>
+                                <td data-label="ایمیل">{{ user.email|default:"-" }}</td>
+                                <td data-label="نام کامل">
+                                    {% if user.first_name or user.last_name %}
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">تعیین نشده</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="تاریخ ثبت‌نام">{{ user.date_joined|date:"Y/m/d" }}</td>
+                                <td data-label="وضعیت">
+                                    {% if user.is_active %}
+                                        <span class="status-badge">فعال</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">غیرفعال</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="نقش">
+                                    {% if user.is_superuser %}
+                                        <span class="role-badge role-superuser">سوپر کاربر</span>
+                                    {% elif user.is_staff %}
+                                        <span class="role-badge role-staff">مدیر</span>
+                                    {% else %}
+                                        <span class="role-badge role-user">کاربر عادی</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="عملیات">
+                                    <div class="action-buttons">
+                                        <a href="{% url 'accounts:user_detail' user.id %}" 
+                                           class="btn-action btn-view" title="مشاهده">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if user.id != request.user.id %}
+                                        <a href="{% url 'accounts:toggle_user_active' user.id %}" 
+                                           class="btn-action {% if user.is_active %}btn-deactivate{% else %}btn-toggle{% endif %}"
+                                           title="{% if user.is_active %}غیرفعال کردن{% else %}فعال کردن{% endif %}">
+                                            <i class="fas {% if user.is_active %}fa-ban{% else %}fa-check{% endif %}"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-users-state">
+                                        <i class="fas fa-users"></i>
+                                        <h4>هیچ کاربری یافت نشد</h4>
+                                        <p class="text-muted">در حال حاضر هیچ کاربری در سیستم ثبت‌نام نکرده است</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

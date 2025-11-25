@@ -1,7 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}سریالیت - تماشای آنلاین فیلم و سریال{% endblock title %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "web/css/home_extra.css" %}">
+{% endblock %}
 
 {% block content %}
     <!-- Mobile Menu -->
@@ -92,7 +96,15 @@
                     <p class="featured-desc">{{s.decriptions}}</p>
                     <div class="featured-actions">
                         <a href="{% url "web:detail" s.id %}" class="btn btn-primary">تماشا کنید <i class="fas fa-play ms-2"></i></a>
-                        <button class="btn btn-outline-primary"><i class="far fa-heart"></i></button>
+                        
+                        <!-- دکمه علاقه‌مندی برای فیلم ویژه -->
+                        <button class="btn btn-outline-primary favorite-btn {% if s.is_favorited_by_user %}favorited{% endif %}" 
+                                data-movie-id="{{ s.id }}"
+                                data-toggle-url="{% url 'accounts:toggle_favorite' s.id %}"
+                                {% if not user.is_authenticated %}disabled title="برای افزودن به علاقه‌مندی‌ها وارد شوید"{% endif %}>
+                            <i class="{% if s.is_favorited_by_user %}fas{% else %}far{% endif %} fa-heart"></i>
+                        </button>
+                        
                         <button class="btn btn-outline-primary"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
@@ -111,17 +123,23 @@
             <div class="owl-carousel owl-theme">
                 {% for m in movie %}
                 <div class="item">
-                    
                     <div class="movie-card">
                         <div class="movie-poster" style="background-image: url('{{m.pictrue.url}}');">
                             {% if m.created_at >= 2025 %}
                             <span class="movie-badge new">جدید</span>
                             {% endif %}
                             <div class="movie-actions">
-                                <button class="movie-action-btn"><i class="far fa-heart"></i></button>
+                                <!-- دکمه علاقه‌مندی -->
+                                <button class="movie-action-btn favorite-btn {% if m.is_favorited_by_user %}favorited{% endif %}" 
+                                        data-movie-id="{{ m.id }}"
+                                        data-toggle-url="{% url 'accounts:toggle_favorite' m.id %}"
+                                        {% if not user.is_authenticated %}disabled title="برای افزودن به علاقه‌مندی‌ها وارد شوید"{% endif %}>
+                                    <i class="{% if m.is_favorited_by_user %}fas{% else %}far{% endif %} fa-heart"></i>
+                                </button>
+                                
                                 <button class="movie-action-btn"><i class="fas fa-plus"></i></button>
                                 <button class="movie-action-btn"><i class="fas fa-share-alt"></i></button>
-                                <button class="movie-action-btn like-btn {% if m.is_liked_by_user %}liked{% endif %}" ata-movie-id="{{ m.id }}">
+                                <button class="movie-action-btn like-btn {% if m.is_liked_by_user %}liked{% endif %}" data-movie-id="{{ m.id }}">
                                     <i class="{% if m.is_liked_by_user %}fas{% else %}far{% endif %} fa-heart"></i> 
                                     <span class="likes-count">{{ m.like_counts }}</span>
                                 </button>
@@ -141,7 +159,6 @@
                             <a href="{% url "web:detail" m.id %}" class="btn btn-primary w-100">تماشا کنید</a>
                         </div>
                     </div>
-                    
                 </div>
                 {% endfor %}
             </div>
@@ -163,7 +180,14 @@
                         <div class="movie-poster" style="background-image: url('{{b.pictrue.url}}');">
                             <span class="movie-badge">{{b.season_number}} فصل</span>
                             <div class="movie-actions">
-                                <button class="movie-action-btn"><i class="far fa-heart"></i></button>
+                                <!-- دکمه علاقه‌مندی -->
+                                <button class="movie-action-btn favorite-btn {% if b.is_favorited_by_user %}favorited{% endif %}" 
+                                        data-movie-id="{{ b.id }}"
+                                        data-toggle-url="{% url 'accounts:toggle_favorite' b.id %}"
+                                        {% if not user.is_authenticated %}disabled title="برای افزودن به علاقه‌مندی‌ها وارد شوید"{% endif %}>
+                                    <i class="{% if b.is_favorited_by_user %}fas{% else %}far{% endif %} fa-heart"></i>
+                                </button>
+                                
                                 <button class="movie-action-btn"><i class="fas fa-plus"></i></button>
                                 <button class="movie-action-btn"><i class="fas fa-share-alt"></i></button>
                             </div>
@@ -206,7 +230,14 @@
                         <div class="movie-poster" style="background-image: url('{{b.pictrue.url}}');">
                             <span class="movie-badge">سینمایی</span>
                             <div class="movie-actions">
-                                <button class="movie-action-btn"><i class="far fa-heart"></i></button>
+                                <!-- دکمه علاقه‌مندی -->
+                                <button class="movie-action-btn favorite-btn {% if b.is_favorited_by_user %}favorited{% endif %}" 
+                                        data-movie-id="{{ b.id }}"
+                                        data-toggle-url="{% url 'accounts:toggle_favorite' b.id %}"
+                                        {% if not user.is_authenticated %}disabled title="برای افزودن به علاقه‌مندی‌ها وارد شوید"{% endif %}>
+                                    <i class="{% if b.is_favorited_by_user %}fas{% else %}far{% endif %} fa-heart"></i>
+                                </button>
+                                
                                 <button class="movie-action-btn"><i class="fas fa-plus"></i></button>
                                 <button class="movie-action-btn"><i class="fas fa-share-alt"></i></button>
                             </div>
@@ -289,11 +320,6 @@
                         <div class="subscription-price">{{s.price}} <span class="subscription-period">تومان / ماه</span></div>
                         <ul class="subscription-features">
                             <li><i class="fas fa-check"></i>{{s.otion1|truncatechars:71}}</li>
-                            {% comment %} <li><i class="fas fa-check"></i> دسترسی به ۱۰۰٪ محتوا + محتوای انحصاری</li>
-                            <li><i class="fas fa-check"></i> تماشا روی ۵ دستگاه همزمان</li>
-                            <li><i class="fas fa-check"></i> دانلود برای تماشای آفلاین</li>
-                            <li><i class="fas fa-check"></i> پشتیبانی VIP 24/7</li>
-                            <li><i class="fas fa-check"></i> دسترسی زودهنگام به محتوای جدید</li> {% endcomment %}
                         </ul>
                         <a href="#" class="btn btn-primary w-100">انتخاب پلن</a>
                     </div>
@@ -451,4 +477,124 @@
     </section>
 {% endblock content %}
 
+{% block extra_js %}
+<script>
+// JavaScript سیستم علاقه‌مندی‌ها
+class FavoriteManager {
+    constructor() {
+        this.initEventListeners();
+    }
 
+    initEventListeners() {
+        // کلیک روی دکمه‌های علاقه‌مندی
+        document.addEventListener('click', (e) => {
+            const favoriteBtn = e.target.closest('.favorite-btn');
+            if (favoriteBtn) {
+                e.preventDefault();
+                this.toggleFavorite(favoriteBtn);
+            }
+        });
+    }
+
+    isUserAuthenticated() {
+        // بررسی اینکه کاربر لاگین کرده
+        return document.body.dataset.userAuthenticated === 'true';
+    }
+
+    async toggleFavorite(button) {
+        if (!this.isUserAuthenticated()) {
+            this.showNotification('لطفاً برای افزودن به علاقه‌مندی‌ها وارد شوید', 'warning');
+            return;
+        }
+
+        const movieId = button.dataset.movieId;
+        const url = button.dataset.toggleUrl;
+
+        // نمایش حالت لودینگ
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        button.disabled = true;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': this.getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // به‌روزرسانی ظاهر دکمه
+                if (data.liked) {
+                    button.classList.add('favorited');
+                    button.innerHTML = '<i class="fas fa-heart"></i>';
+                    this.showNotification('به علاقه‌مندی‌ها اضافه شد 💖', 'success');
+                } else {
+                    button.classList.remove('favorited');
+                    button.innerHTML = '<i class="far fa-heart"></i>';
+                    this.showNotification('از علاقه‌مندی‌ها حذف شد ❤️', 'info');
+                }
+            } else {
+                this.showNotification(data.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            this.showNotification('خطا در ارتباط با سرور', 'error');
+            button.innerHTML = originalHTML;
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    getCSRFToken() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfToken ? csrfToken.value : '';
+    }
+
+    showNotification(message, type = 'info') {
+        // حذف نوتیفیکیشن‌های قبلی
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notif => notif.remove());
+
+        // ایجاد نوتیفیکیشن جدید
+        const notification = document.createElement('div');
+        const alertClass = type === 'error' ? 'alert-danger' : 
+                          type === 'warning' ? 'alert-warning' : 
+                          type === 'success' ? 'alert-success' : 'alert-info';
+        
+        notification.className = `alert ${alertClass} notification`;
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // حذف خودکار پس از 4 ثانیه
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 500);
+        }, 4000);
+    }
+}
+
+// مقداردهی اولیه وقتی DOM لود شد
+document.addEventListener('DOMContentLoaded', () => {
+    new FavoriteManager();
+    
+    // اضافه کردن data attribute برای وضعیت کاربر
+    document.body.setAttribute('data-user-authenticated', '{{ user.is_authenticated|lower }}');
+});
+</script>
+
+{% endblock %}
